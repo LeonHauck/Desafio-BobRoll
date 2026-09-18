@@ -126,7 +126,7 @@ ranking guardado no navegador de cada um.
 
 <div align="center">
 
-Feito na hora do café para a equipe HiperRoll se divertir.
+Feito na hora do café para a equipe HiperRoll se divertir!
 
 **Desenvolvido por [Leon Hauck](https://www.linkedin.com/in/leon-hauck/)**
 

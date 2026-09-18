@@ -364,12 +364,14 @@
 
   function placeRandomPillars(g) {
     for (const [r0] of PILLAR_ROW_BANDS) {
-      for (const [c0] of PILLAR_COL_SLOTS) {
-        if (Math.random() > 0.62) continue; // leave this slot open
+      for (const [c0, c1] of PILLAR_COL_SLOTS) {
+        if (Math.random() > 0.55) continue; // leave this slot open
+        // always fill the whole slot width - a partial-width pillar leaves
+        // a single stray dot wedged against it that's only reachable from
+        // one exact direction, which is the "hard to grab" spot players hit
         const h = Math.random() < 0.5 ? 1 : 2;
-        const w = Math.random() < 0.5 ? 2 : 3;
         for (let r = r0; r < r0 + h; r++) {
-          for (let c = c0; c < c0 + w; c++) {
+          for (let c = c0; c <= c1; c++) {
             g[r][c] = "#";
             g[r][COLS - 1 - c] = "#";
           }
@@ -734,6 +736,7 @@
   document.getElementById("closeRankingBtn").addEventListener("click", () => {
     rankingOverlay.classList.add("hidden");
   });
+
 
 
 
@@ -1188,7 +1191,7 @@
         if (v === 1) {
           ctx.fillStyle = COLORS.dot;
           ctx.beginPath();
-          ctx.arc(c * TILE + TILE / 2, r * TILE + TILE / 2, 2.6, 0, Math.PI * 2);
+          ctx.arc(c * TILE + TILE / 2, r * TILE + TILE / 2, 3.4, 0, Math.PI * 2);
           ctx.fill();
         } else if (v === 2) {
           const pulse = 5 + Math.sin(time / 130) * 1.8;

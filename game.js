@@ -12,8 +12,8 @@
   // banner (see generateMaze()); this is also the safety-net if that ever
   // fails to produce a fully-connected maze.
   const DEFAULT_MAZE = [
-    "#######################################",
-    "#o...................................o#",
+    "######### #############################",
+    "#o....... ...........................o#",
     "# # # ### ### ### ### ### ### #   #   #",
     "# # #  #  # # #   # # # # # # #   #   #",
     "# ###  #  ### ### ### ### # # #   #   #",
@@ -42,8 +42,8 @@
     "#.##..##..###.............###..##..##.#",
     "#.##..##.......................##..##.#",
     "#.####..####..####...####..####..####.#",
-    "#o...................................o#",
-    "#######################################",
+    "#o....... ...........................o#",
+    "######### #############################",
   ];
   let MAZE = DEFAULT_MAZE;
 
@@ -51,6 +51,7 @@
   const ROWS = 32;
   const TILE = 20;
   const TUNNEL_ROW = 18;
+  const TUNNEL_COL = 9; // vertical tunnel: a gap column between banner letters
 
   const HOUSE_COL_MIN = 17, HOUSE_COL_MAX = 21;
   const HOUSE_ROW_MIN = 17, HOUSE_ROW_MAX = 19;
@@ -80,7 +81,7 @@
     const nd = oppositeDir(e.dir);
     if (nd === STOP) return;
     const newCol = wrapCol(e.col + e.dir.dx, e.row);
-    const newRow = e.row + e.dir.dy;
+    const newRow = wrapRow(e.row + e.dir.dy, e.col);
     e.t = 1 - e.t;
     e.col = newCol;
     e.row = newRow;
@@ -265,11 +266,13 @@
 
   // ---------------- Maze helpers ----------------
   function cellChar(col, row) {
-    if (row < 0 || row >= ROWS) return "#";
+    let r = row;
+    if (col === TUNNEL_COL) r = ((row % ROWS) + ROWS) % ROWS;
+    if (r < 0 || r >= ROWS) return "#";
     let c = col;
-    if (row === TUNNEL_ROW) c = ((col % COLS) + COLS) % COLS;
+    if (r === TUNNEL_ROW) c = ((col % COLS) + COLS) % COLS;
     if (c < 0 || c >= COLS) return "#";
-    return MAZE[row][c];
+    return MAZE[r][c];
   }
 
   function isWalkable(col, row, isGhostLike) {
@@ -289,6 +292,14 @@
       if (col >= COLS) return 0;
     }
     return col;
+  }
+
+  function wrapRow(row, col) {
+    if (col === TUNNEL_COL) {
+      if (row < 0) return ROWS - 1;
+      if (row >= ROWS) return 0;
+    }
+    return row;
   }
 
   // ---------------- Random maze generation ----------------
@@ -372,6 +383,8 @@
     stampHouse(g);
     g[TUNNEL_ROW][0] = " "; g[TUNNEL_ROW][1] = " ";
     g[TUNNEL_ROW][COLS - 1] = " "; g[TUNNEL_ROW][COLS - 2] = " ";
+    g[0][TUNNEL_COL] = " "; g[1][TUNNEL_COL] = " ";
+    g[ROWS - 1][TUNNEL_COL] = " "; g[ROWS - 2][TUNNEL_COL] = " ";
     placeRandomPillars(g);
     // power pellets: the 4 corners plus 4 more along the guaranteed-clear
     // gap rows/columns between pillar slots, so they're always reachable
@@ -393,7 +406,9 @@
     while (qi < queue.length) {
       const [r, c] = queue[qi++];
       const neighbors = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]];
-      for (const [nr, ncRaw] of neighbors) {
+      for (const [nrRaw, ncRaw] of neighbors) {
+        let nr = nrRaw;
+        if (c === TUNNEL_COL) nr = ((nr % ROWS) + ROWS) % ROWS;
         if (nr < 0 || nr >= ROWS) continue;
         let nc = ncRaw;
         if (nr === TUNNEL_ROW) nc = ((nc % COLS) + COLS) % COLS;
@@ -470,6 +485,7 @@
       releaseTimer: def.release,
       status: def.release === 0 ? "leaving" : "house",
       mode: "scatter",
+      path: null,
       speed: 5.0,
     }));
   }
@@ -712,6 +728,7 @@
     rankingOverlay.classList.add("hidden");
   });
 
+
   // ---------------- Input ----------------
   function setDir(d) {
     player.nextDir = d;
@@ -837,7 +854,77 @@
     }
   }
 
+  // Exact shortest path (BFS, wrap-aware) between two tiles. Used to send
+  // eaten/leaving ghosts back to the house: the regular greedy "step toward
+  // whichever neighbor reduces distance" AI that chases/scatters with can
+  // get stuck looping around pillars forever in some maze layouts, since it
+  // never revisits a decision - a real path guarantees they always arrive.
+  function findPathBFS(fromCol, fromRow, toCol, toRow) {
+    const startKey = fromRow * COLS + fromCol;
+    const goalKey = toRow * COLS + toCol;
+    if (startKey === goalKey) return [];
+    const visited = new Set([startKey]);
+    const prev = new Map();
+    const queue = [[fromCol, fromRow]];
+    let qi = 0;
+    while (qi < queue.length) {
+      const [c, r] = queue[qi++];
+      for (const d of DIRS) {
+        const nc = wrapCol(c + d.dx, r);
+        const nr = wrapRow(r + d.dy, c);
+        if (!isWalkable(nc, nr, true)) continue;
+        const k = nr * COLS + nc;
+        if (visited.has(k)) continue;
+        visited.add(k);
+        prev.set(k, [c, r]);
+        if (k === goalKey) { qi = queue.length; break; }
+        queue.push([nc, nr]);
+      }
+    }
+    if (!visited.has(goalKey)) return [];
+    const path = [];
+    let cur = [toCol, toRow];
+    let curKey = goalKey;
+    while (curKey !== startKey) {
+      path.push({ col: cur[0], row: cur[1] });
+      cur = prev.get(curKey);
+      if (!cur) return [];
+      curKey = cur[1] * COLS + cur[0];
+    }
+    path.reverse();
+    return path;
+  }
+
+  function dirBetween(c0, r0, c1, r1) {
+    for (const d of DIRS) {
+      if (wrapCol(c0 + d.dx, r0) === c1 && wrapRow(r0 + d.dy, c0) === r1) return d;
+    }
+    return STOP;
+  }
+
   function decideGhostDir(r) {
+    // Self-healing: arriving at the target flips status here (not only in
+    // stepRival's tile-arrival block) so a ghost can never get stranded
+    // "at" its destination with status still eaten/leaving and nothing left
+    // to path toward.
+    if (r.status === "eaten" && r.col === HOUSE_CENTER.col && r.row === HOUSE_CENTER.row) {
+      r.status = "leaving";
+      r.path = null;
+    }
+    if (r.status === "leaving" && r.col === HOUSE_EXIT.col && r.row === HOUSE_EXIT.row) {
+      r.status = "normal";
+      r.mode = globalMode;
+      r.path = null;
+    }
+    if (r.status === "eaten" || r.status === "leaving") {
+      const target = r.status === "eaten" ? HOUSE_CENTER : HOUSE_EXIT;
+      if (!r.path || r.path.length === 0) {
+        r.path = findPathBFS(r.col, r.row, target.col, target.row);
+      }
+      const next = r.path.shift();
+      r.dir = next ? dirBetween(r.col, r.row, next.col, next.row) : STOP;
+      return;
+    }
     const forbidden = { dx: -r.dir.dx, dy: -r.dir.dy };
     if (r.status === "frightened") {
       const options = DIRS.filter((d) => isWalkable(r.col + d.dx, r.row + d.dy, true) &&
@@ -846,11 +933,7 @@
       r.dir = pool.length ? pool[Math.floor(Math.random() * pool.length)] : STOP;
       return;
     }
-    let target;
-    if (r.status === "eaten") target = HOUSE_CENTER;
-    else if (r.status === "leaving") target = HOUSE_EXIT;
-    else if (r.mode === "scatter") target = r.scatterTile;
-    else target = computeChaseTarget(r);
+    const target = r.mode === "scatter" ? r.scatterTile : computeChaseTarget(r);
 
     let best = null, bestDist = Infinity;
     for (const d of DIRS) {
@@ -902,8 +985,10 @@
     player.t += player.speed * dt;
     if (player.t >= 1) {
       player.t -= 1;
-      player.col = wrapCol(player.col + player.dir.dx, player.row);
-      player.row += player.dir.dy;
+      const newCol = wrapCol(player.col + player.dir.dx, player.row);
+      const newRow = wrapRow(player.row + player.dir.dy, player.col);
+      player.col = newCol;
+      player.row = newRow;
       eatAt(player.col, player.row);
       if (player.nextDir !== STOP && isWalkable(player.col + player.nextDir.dx, player.row + player.nextDir.dy, false)) {
         player.dir = player.nextDir;
@@ -927,14 +1012,10 @@
     r.t += spd * dt;
     if (r.t >= 1) {
       r.t -= 1;
-      r.col = wrapCol(r.col + r.dir.dx, r.row);
-      r.row += r.dir.dy;
-      if (r.status === "leaving" && r.col === HOUSE_EXIT.col && r.row === HOUSE_EXIT.row) {
-        r.status = "normal";
-        r.mode = globalMode;
-      } else if (r.status === "eaten" && r.col === HOUSE_CENTER.col && r.row === HOUSE_CENTER.row) {
-        r.status = "leaving";
-      }
+      const newCol = wrapCol(r.col + r.dir.dx, r.row);
+      const newRow = wrapRow(r.row + r.dir.dy, r.col);
+      r.col = newCol;
+      r.row = newRow;
       decideGhostDir(r);
       if (r.dir === STOP) r.t = 0;
     }
@@ -959,13 +1040,15 @@
 
   function entityPixel(e) {
     let col = e.col + e.dir.dx * e.t;
-    const row = e.row + e.dir.dy * e.t;
+    let row = e.row + e.dir.dy * e.t;
     col = ((col % COLS) + COLS) % COLS;
+    row = ((row % ROWS) + ROWS) % ROWS;
     return { x: (col + 0.5) * TILE, y: (row + 0.5) * TILE };
   }
 
   function eatGhost(r) {
     r.status = "eaten";
+    r.path = null;
     reverseEntityDir(r);
     const pts = 200 * Math.pow(2, comboCount);
     comboCount++;
@@ -978,7 +1061,10 @@
   function checkCollisions() {
     const p = entityPixel(player);
     for (const r of rivals) {
-      if (r.status !== "normal" && r.status !== "frightened") continue;
+      // "leaving" ghosts are still dangerous - only fully idle (still inside
+      // the house, unreachable by the player anyway) or already-eaten ghosts
+      // are safe to touch
+      if (r.status !== "normal" && r.status !== "frightened" && r.status !== "leaving") continue;
       const gp = entityPixel(r);
       const dist = Math.hypot(p.x - gp.x, p.y - gp.y);
       if (dist < TILE * 0.6) {
@@ -1016,6 +1102,7 @@
     rivals.forEach((r) => {
       if (r.status === "house" && houseClock >= r.releaseTimer) {
         r.status = "leaving";
+        r.path = null;
       }
     });
 

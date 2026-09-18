@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>HiperRoll - O Jogo</title>
+<link rel="icon" href="Novo-Logotipo-HiperRoll.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <header id="hud">
+    <div class="hud-left">
+      <img src="Novo-Logotipo-HiperRoll.png" alt="HiperRoll" class="hud-logo">
+    </div>
+    <div class="hud-mid">
+      <div class="hud-stat"><span class="hud-label">Pontos</span><span id="score">0</span></div>
+      <div class="hud-stat"><span class="hud-label">Recorde</span><span id="highscore">0</span></div>
+      <div class="hud-stat"><span class="hud-label">Fase</span><span id="level">1</span></div>
+    </div>
+    <div class="hud-right">
+      <div id="lives"></div>
+      <button id="muteBtn" class="icon-btn" title="Som">🔊</button>
+      <button id="pauseBtn" class="icon-btn" title="Pausar">⏸</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <canvas id="game"></canvas>
+
+    <div id="menuOverlay" class="overlay">
+      <div class="panel">
+        <img src="Novo-Logotipo-HiperRoll.png" alt="HiperRoll" class="menu-logo">
+        <h1>O Desafio do BobRoll</h1>
+        <p class="tagline">Desvie dos rivais, colete os polietilenos e proteja a produção!</p>
+        <div class="howto">
+          <p><strong>Como jogar</strong></p>
+          <p>Use as setas / WASD (ou os botões abaixo no celular) para mover o BobRoll pelo labirinto.</p>
+          <p>Colete todos os pontos evitando o <b>Nó</b>, o <b>Emperro</b>, a <b>Poeira</b> e o <b>Atraso</b>.</p>
+          <p>Pegue o <b>Turbo</b> (polietileno grande) para virar o jogo e derrotar os rivais!</p>
+        </div>
+        <label class="name-field" for="playerName">Seu nome no ranking</label>
+        <input id="playerName" class="name-input" type="text" maxlength="18" placeholder="Digite seu nome" autocomplete="off">
+        <button id="startBtn" class="primary-btn">Começar a jogar</button>
+        <button id="rankingBtn" class="secondary-btn">Ver ranking</button>
+      </div>
+    </div>
+
+    <div id="rankingOverlay" class="overlay hidden">
+      <div class="panel small">
+        <h2>Ranking HiperRoll</h2>
+        <ol id="rankingList" class="ranking-list"></ol>
+        <p id="rankingStatus" class="ranking-status"></p>
+        <button id="closeRankingBtn" class="primary-btn">Fechar</button>
+      </div>
+    </div>
+
+    <div id="pauseOverlay" class="overlay hidden">
+      <div class="panel small">
+        <h2>Pausado</h2>
+        <button id="resumeBtn" class="primary-btn">Continuar</button>
+      </div>
+    </div>
+
+    <div id="gameOverOverlay" class="overlay hidden">
+      <div class="panel small">
+        <h2 id="gameOverTitle">Fim de Jogo</h2>
+        <p>Pontuação: <span id="finalScore">0</span></p>
+        <p id="newRecord" class="hidden">Novo recorde!</p>
+        <button id="restartBtn" class="primary-btn">Jogar novamente</button>
+        <button id="rankingBtn2" class="secondary-btn">Ver ranking</button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+  </main>
+
+  <div id="touchControls">
+    <div class="tc-row">
+      <button class="tc-btn" data-dir="up">▲</button>
+    </div>
+    <div class="tc-row">
+      <button class="tc-btn" data-dir="left">◀</button>
+      <button class="tc-btn" data-dir="down">▼</button>
+      <button class="tc-btn" data-dir="right">▶</button>
+    </div>
+  </div>
+
+  <footer id="footer">HiperRoll &copy; <span id="year"></span> — Desenvolvido por <a href="https://www.linkedin.com/in/leon-hauck/" target="_blank" rel="noopener">Leon Hauck</a></footer>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

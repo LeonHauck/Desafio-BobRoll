@@ -139,6 +139,10 @@ canvas#game {
 }
 .overlay.hidden { display: none; }
 
+/* The ranking panel can be opened from on top of the menu, pause or game
+   over screens - it needs to paint above whichever of those is showing. */
+#rankingOverlay { z-index: 60; }
+
 .panel {
   text-align: center;
   padding: 22px 26px;

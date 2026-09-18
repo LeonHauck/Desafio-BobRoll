@@ -730,6 +730,7 @@
 
   document.getElementById("rankingBtn").addEventListener("click", openRanking);
   document.getElementById("rankingBtn2").addEventListener("click", openRanking);
+  document.getElementById("rankingBtn3").addEventListener("click", openRanking);
   document.getElementById("closeRankingBtn").addEventListener("click", () => {
     rankingOverlay.classList.add("hidden");
   });

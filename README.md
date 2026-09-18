@@ -4,7 +4,7 @@
 
 # 🎮 O Desafio do BobRoll
 
-### Um Pac-Man com a cara da HiperRoll — feito pra galera se divertir💨
+### Um Pac-Man com a cara da HiperRoll — feito pra galera se divertir ☕
 
 <img src="Novo-Logotipo-HiperRoll.png" alt="HiperRoll" width="150">
 

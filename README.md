@@ -61,7 +61,7 @@ build — é só abrir e jogar. 🚀
 
 Colete todos os pontinhos, desvie do **Nó**, do **Emperro**, da **Poeira** e
 do **Atraso**, e pegue o **Turbo** (bolinha grande) para virar o jogo e
-comer os rivais! 😈➡️😱
+derrotar os rivais! 😈➡️😱
 
 ### 👻 Os rivais
 
@@ -126,7 +126,7 @@ ranking guardado no navegador de cada um.
 
 <div align="center">
 
-Feito com 🧻 e ☕ para a equipe HiperRoll se divertir.
+Feito na hora do café para a equipe HiperRoll se divertir.
 
 **Desenvolvido por [Leon Hauck](https://www.linkedin.com/in/leon-hauck/)**
 

@@ -12,8 +12,8 @@
   // banner (see generateMaze()); this is also the safety-net if that ever
   // fails to produce a fully-connected maze.
   const DEFAULT_MAZE = [
-    "######### #############################",
-    "#o....... ...........................o#",
+    "######### ################### #########",
+    "#o....... ................... .......o#",
     "# # # ### ### ### ### ### ### #   #   #",
     "# # #  #  # # #   # # # # # # #   #   #",
     "# ###  #  ### ### ### ### # # #   #   #",
@@ -42,8 +42,8 @@
     "#.##..##..###.............###..##..##.#",
     "#.##..##.......................##..##.#",
     "#.####..####..####...####..####..####.#",
-    "#o....... ...........................o#",
-    "######### #############################",
+    "#o....... ................... .......o#",
+    "######### ################### #########",
   ];
   let MAZE = DEFAULT_MAZE;
 
@@ -51,7 +51,11 @@
   const ROWS = 32;
   const TILE = 20;
   const TUNNEL_ROW = 18;
-  const TUNNEL_COL = 9; // vertical tunnel: a gap column between banner letters
+  // Vertical tunnels: gap columns between banner letters (col 9 is between
+  // "H" and "I", col 29 is right next to the "O" of "ROLL") that stay clear
+  // all the way through the banner and the pillar zones below it.
+  const TUNNEL_COLS = [9, 29];
+  function isTunnelCol(col) { return TUNNEL_COLS.indexOf(col) !== -1; }
 
   const HOUSE_COL_MIN = 17, HOUSE_COL_MAX = 21;
   const HOUSE_ROW_MIN = 17, HOUSE_ROW_MAX = 19;
@@ -267,7 +271,7 @@
   // ---------------- Maze helpers ----------------
   function cellChar(col, row) {
     let r = row;
-    if (col === TUNNEL_COL) r = ((row % ROWS) + ROWS) % ROWS;
+    if (isTunnelCol(col)) r = ((row % ROWS) + ROWS) % ROWS;
     if (r < 0 || r >= ROWS) return "#";
     let c = col;
     if (r === TUNNEL_ROW) c = ((col % COLS) + COLS) % COLS;
@@ -295,7 +299,7 @@
   }
 
   function wrapRow(row, col) {
-    if (col === TUNNEL_COL) {
+    if (isTunnelCol(col)) {
       if (row < 0) return ROWS - 1;
       if (row >= ROWS) return 0;
     }
@@ -383,8 +387,10 @@
     stampHouse(g);
     g[TUNNEL_ROW][0] = " "; g[TUNNEL_ROW][1] = " ";
     g[TUNNEL_ROW][COLS - 1] = " "; g[TUNNEL_ROW][COLS - 2] = " ";
-    g[0][TUNNEL_COL] = " "; g[1][TUNNEL_COL] = " ";
-    g[ROWS - 1][TUNNEL_COL] = " "; g[ROWS - 2][TUNNEL_COL] = " ";
+    for (const tc of TUNNEL_COLS) {
+      g[0][tc] = " "; g[1][tc] = " ";
+      g[ROWS - 1][tc] = " "; g[ROWS - 2][tc] = " ";
+    }
     placeRandomPillars(g);
     // power pellets: the 4 corners plus 4 more along the guaranteed-clear
     // gap rows/columns between pillar slots, so they're always reachable
@@ -408,7 +414,7 @@
       const neighbors = [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]];
       for (const [nrRaw, ncRaw] of neighbors) {
         let nr = nrRaw;
-        if (c === TUNNEL_COL) nr = ((nr % ROWS) + ROWS) % ROWS;
+        if (isTunnelCol(c)) nr = ((nr % ROWS) + ROWS) % ROWS;
         if (nr < 0 || nr >= ROWS) continue;
         let nc = ncRaw;
         if (nr === TUNNEL_ROW) nc = ((nc % COLS) + COLS) % COLS;
@@ -727,6 +733,7 @@
   document.getElementById("closeRankingBtn").addEventListener("click", () => {
     rankingOverlay.classList.add("hidden");
   });
+
 
 
   // ---------------- Input ----------------

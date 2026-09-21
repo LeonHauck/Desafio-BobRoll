@@ -543,6 +543,41 @@
   highscoreEl.textContent = highscore;
   muteBtn.textContent = muted ? "🔇" : "🔊";
   const nameErrorEl = document.getElementById("nameError");
+
+  // Event mode: only the offline .exe build answers event-mode.json (the
+  // website gets a 404), so the phone field / Excel export never show online.
+  let eventMode = false;
+  let playerPhone = "";
+  const phoneWrap = document.getElementById("phoneWrap");
+  const playerPhoneInput = document.getElementById("playerPhone");
+  const phoneErrorEl = document.getElementById("phoneError");
+  const newPlayerBtn = document.getElementById("newPlayerBtn");
+
+  function formatPhone(digits) {
+    const d = digits.slice(0, 11);
+    if (d.length <= 2) return d;
+    if (d.length <= 6) return "(" + d.slice(0, 2) + ") " + d.slice(2);
+    if (d.length <= 10) return "(" + d.slice(0, 2) + ") " + d.slice(2, 6) + "-" + d.slice(6);
+    return "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7);
+  }
+  playerPhoneInput.addEventListener("input", () => {
+    playerPhoneInput.value = formatPhone(playerPhoneInput.value.replace(/\D/g, ""));
+    if (playerPhoneInput.value.replace(/\D/g, "").length >= 10) {
+      playerPhoneInput.classList.remove("invalid");
+      phoneErrorEl.classList.add("hidden");
+    }
+  });
+
+  fetch("event-mode.json")
+    .then((res) => (res.ok ? res.json() : null))
+    .then((info) => {
+      if (!info || !info.event) return;
+      eventMode = true;
+      phoneWrap.classList.remove("hidden");
+      newPlayerBtn.classList.remove("hidden");
+      playerNameInput.value = ""; // never prefill someone else's data at an event
+    })
+    .catch(() => {});
   playerNameInput.value = (localStorage.getItem("hiperroll_playername") || "").slice(0, 10);
   playerNameInput.addEventListener("input", () => {
     if (playerNameInput.value.trim()) {
@@ -680,7 +715,7 @@
       const res = await fetch(LEADERBOARD_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, score: scoreValue }),
+        body: JSON.stringify(eventMode ? { name, phone: playerPhone, score: scoreValue } : { name, score: scoreValue }),
       });
       if (!res.ok) throw new Error("bad response");
     } catch (e) {
@@ -765,7 +800,13 @@
   }
 
   window.addEventListener("keydown", (e) => {
-    if (e.target === playerNameInput) {
+    // hidden shortcut for the event staff: download the participants sheet
+    if (eventMode && e.ctrlKey && e.shiftKey && e.code === "KeyE") {
+      e.preventDefault();
+      window.location.href = "export.xlsx";
+      return;
+    }
+    if (e.target === playerNameInput || e.target === playerPhoneInput) {
       // let the player type their name normally, but Enter still starts the game
       if (e.code === "Enter" && state === "menu") beginGame();
       return;
@@ -840,8 +881,18 @@
     }
     playerNameInput.classList.remove("invalid");
     nameErrorEl.classList.add("hidden");
+    if (eventMode) {
+      const digits = playerPhoneInput.value.replace(/\D/g, "");
+      if (digits.length < 10 || digits.length > 11) {
+        playerPhoneInput.classList.add("invalid");
+        phoneErrorEl.classList.remove("hidden");
+        playerPhoneInput.focus();
+        return;
+      }
+      playerPhone = digits;
+    }
     playerName = typed;
-    localStorage.setItem("hiperroll_playername", playerName);
+    if (!eventMode) localStorage.setItem("hiperroll_playername", playerName);
     menuOverlay.classList.add("hidden");
     score = 0;
     scoreEl.textContent = "0";
@@ -858,6 +909,16 @@
     beginGame();
   }
   document.getElementById("restartBtn").addEventListener("click", restartGame);
+
+  newPlayerBtn.addEventListener("click", () => {
+    gameOverOverlay.classList.add("hidden");
+    playerNameInput.value = "";
+    playerPhoneInput.value = "";
+    playerPhone = "";
+    state = "menu";
+    menuOverlay.classList.remove("hidden");
+    playerNameInput.focus();
+  });
 
   // ---------------- AI targeting ----------------
   function computeChaseTarget(r) {

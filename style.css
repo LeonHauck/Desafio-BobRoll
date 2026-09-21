@@ -252,6 +252,7 @@ canvas#game {
   text-align: left;
 }
 .name-error.hidden { display: none; }
+#phoneWrap.hidden, #newPlayerBtn.hidden, #newRecord.hidden { display: none; }
 
 .ranking-list {
   list-style: none;

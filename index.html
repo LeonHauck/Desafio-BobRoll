@@ -43,6 +43,11 @@
         <label class="name-field" for="playerName">Seu nome no ranking (obrigatório, até 10 letras)</label>
         <input id="playerName" class="name-input" type="text" maxlength="10" placeholder="Digite seu nome" autocomplete="off" required>
         <p id="nameError" class="name-error hidden">Digite seu nome para começar!</p>
+        <div id="phoneWrap" class="hidden">
+          <label class="name-field" for="playerPhone">Seu telefone com DDD (obrigatório)</label>
+          <input id="playerPhone" class="name-input" type="tel" inputmode="numeric" maxlength="15" placeholder="(00) 00000-0000" autocomplete="off">
+          <p id="phoneError" class="name-error hidden">Digite um telefone válido com DDD!</p>
+        </div>
         <button id="startBtn" class="primary-btn">Começar a jogar</button>
         <button id="rankingBtn" class="secondary-btn">Ver ranking</button>
       </div>
@@ -72,6 +77,7 @@
         <p id="newRecord" class="hidden">Novo recorde!</p>
         <button id="restartBtn" class="primary-btn">Jogar novamente</button>
         <button id="rankingBtn2" class="secondary-btn">Ver ranking</button>
+        <button id="newPlayerBtn" class="secondary-btn hidden">Novo jogador</button>
       </div>
     </div>
 

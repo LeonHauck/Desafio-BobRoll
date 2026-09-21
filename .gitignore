@@ -6,3 +6,6 @@ dist/
 build/
 *.exe
 desktop/icon.ico
+participantes.json
+participantes.xlsx
+browser-data/

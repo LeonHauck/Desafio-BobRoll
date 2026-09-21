@@ -1,8 +1,8 @@
-"""Builds dist/DesafioBobRoll.exe (offline event version).
+"""Gera o dist/DesafioBobRoll.exe (versão offline para eventos).
 
-Run again after changing the game to regenerate the .exe:
+Rode de novo depois de mudar o jogo para regenerar o .exe:
     python desktop/build.py
-Requires: pip install pyinstaller pillow
+Requer: pip install pyinstaller pillow
 """
 import os
 import subprocess

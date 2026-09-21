@@ -1,10 +1,10 @@
 <?php
-// Simple flat-file leaderboard store for the HiperRoll game.
-// GET  -> returns the top 10 scores as JSON.
-// POST -> accepts {"name": "...", "score": 1234} and returns the updated top 10.
+// Armazenamento simples do ranking do jogo HiperRoll, em arquivo (sem banco de dados).
+// GET  -> devolve as 10 maiores pontuações em JSON.
+// POST -> recebe {"name": "...", "score": 1234} e devolve o top 10 atualizado.
 //
-// No database needed: scores are kept in leaderboard.json next to this file.
-// Works on any standard PHP shared hosting (e.g. HostGator) with no setup.
+// Não precisa de banco de dados: as pontuações ficam no leaderboard.json ao lado deste arquivo.
+// Funciona em qualquer hospedagem PHP compartilhada (ex: HostGator) sem configuração.
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');

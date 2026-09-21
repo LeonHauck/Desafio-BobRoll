@@ -1,15 +1,15 @@
-"""Offline launcher for Desafio BobRoll (events without internet).
+"""Launcher offline do Desafio BobRoll (eventos sem internet).
 
-Starts a tiny local web server that serves the game files bundled inside the
-.exe, emulates leaderboard.php, and opens the game in an app-style Edge/Chrome
-window. Closing that window exits.
+Sobe um servidor web local minúsculo que serve os arquivos do jogo embutidos no
+.exe, imita o leaderboard.php e abre o jogo numa janela estilo aplicativo do
+Edge/Chrome. Fechar essa janela encerra o programa.
 
-Event mode (only in this offline build, the website never has it):
-  * the game asks for name + phone before playing
-  * every play is stored in participantes.json next to the .exe (so it
-    travels with the pendrive) - the public ranking never exposes phones
-  * Ctrl+Shift+E in the game downloads participantes.xlsx
-    (Nome, Telefone, Pontuação, Data) and also saves a copy next to the .exe
+Modo evento (só nesta versão offline, o site nunca tem isso):
+  * o jogo pede nome + telefone antes de jogar
+  * cada partida é guardada em participantes.json ao lado do .exe (então
+    viaja junto com o pendrive) - o ranking público nunca mostra telefones
+  * Ctrl+Shift+E no jogo baixa o participantes.xlsx
+    (Nome, Telefone, Pontuação, Data) e também salva uma cópia ao lado do .exe
 """
 import io
 import json
@@ -57,7 +57,7 @@ def format_phone(digits):
 
 
 def build_xlsx(entries):
-    """Minimal .xlsx writer (no third-party dependency)."""
+    """Gerador mínimo de .xlsx (sem depender de bibliotecas externas)."""
     def text_cell(ref, value, style=0):
         return f'<c r="{ref}" t="inlineStr" s="{style}"><is><t>{escape(str(value))}</t></is></c>'
 

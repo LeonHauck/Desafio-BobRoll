@@ -8,8 +8,8 @@
   --hr-gold: #f5a623;
   --bg: #05070f;
   --panel-bg: #0d1330;
-  /* board is 39x32 tiles (aspect 1.21875) - this scales it up to fill more
-     of the screen on desktop while never overflowing the viewport */
+  /* o tabuleiro tem 39x32 tiles (proporção 1.21875) - isso o amplia para ocupar
+     mais da tela no desktop, sem nunca estourar a área visível */
   --board-w: min(94vw, 1200px, calc(78vh * 1.21875));
 }
 
@@ -106,7 +106,7 @@ html, body {
 }
 .icon-btn:hover { background: var(--hr-blue-bright); }
 
-/* ---------- Stage ---------- */
+/* ---------- Área do jogo ---------- */
 #stage {
   position: relative;
   margin-top: 10px;
@@ -122,10 +122,10 @@ canvas#game {
   height: auto;
 }
 
-/* ---------- Overlays ---------- */
-/* Fixed to the viewport (not just the canvas box) so the menu/ranking/game
-   over panels always have the full screen to work with and never get
-   squeezed into the canvas's own (sometimes short) height on small screens. */
+/* ---------- Telas sobrepostas (menu, pausa, ranking...) ---------- */
+/* Fixas na janela inteira (e não só na caixa do canvas) para os painéis de
+   menu/ranking/fim de jogo sempre terem a tela toda disponível e nunca ficarem
+   espremidos na altura do canvas, que às vezes é baixa em telas pequenas. */
 .overlay {
   position: fixed;
   inset: 0;
@@ -139,8 +139,8 @@ canvas#game {
 }
 .overlay.hidden { display: none; }
 
-/* The ranking panel can be opened from on top of the menu, pause or game
-   over screens - it needs to paint above whichever of those is showing. */
+/* O painel de ranking pode ser aberto por cima do menu, da pausa ou do fim de
+   jogo - ele precisa aparecer acima de qualquer uma dessas telas. */
 #rankingOverlay { z-index: 60; }
 
 .panel {
@@ -333,7 +333,7 @@ canvas#game {
 }
 .toast.hidden { display: none; }
 
-/* ---------- Touch controls ---------- */
+/* ---------- Controles de toque (celular) ---------- */
 #touchControls {
   margin-top: 14px;
   display: flex;

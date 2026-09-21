@@ -1,16 +1,16 @@
 // ============================================================
-// HiperRoll - O Desafio do Rolo
+// HiperRoll - O Desafio do BobRoll
 // Jogo estilo Pac-Man com a marca HiperRoll
 // ============================================================
 
 (function () {
   "use strict";
 
-  // ---------------- Maze data ----------------
-  // Static fallback / initial layout - wall blocks spell "HIPERROLL" across
-  // the top rows. Each level regenerates a fresh random layout below the
-  // banner (see generateMaze()); this is also the safety-net if that ever
-  // fails to produce a fully-connected maze.
+  // ---------------- Dados do labirinto ----------------
+  // Layout estático (reserva / inicial) - os blocos de parede formam "HIPERROLL" nas
+  // linhas do topo. A cada fase um novo layout aleatório é gerado abaixo do
+  // letreiro (veja generateMaze()); este também é a rede de segurança caso a
+  // geração falhe em produzir um labirinto totalmente conectado.
   const DEFAULT_MAZE = [
     "######### ################### #########",
     "#o....... ................... .......o#",
@@ -51,9 +51,9 @@
   const ROWS = 32;
   const TILE = 20;
   const TUNNEL_ROW = 18;
-  // Vertical tunnels: gap columns between banner letters (col 9 is between
-  // "H" and "I", col 29 is right next to the "O" of "ROLL") that stay clear
-  // all the way through the banner and the pillar zones below it.
+  // Túneis verticais: colunas livres entre as letras do letreiro (a coluna 9 fica
+  // entre o "H" e o "I", a coluna 29 fica ao lado do "O" de "ROLL") que ficam
+  // livres por todo o letreiro e pelas zonas de pilares abaixo dele.
   const TUNNEL_COLS = [9, 29];
   function isTunnelCol(col) { return TUNNEL_COLS.indexOf(col) !== -1; }
 
@@ -78,9 +78,9 @@
     return STOP;
   }
 
-  // Flips an entity's direction in place while preserving its exact pixel
-  // position (no teleport): the tile it was heading into becomes the tile
-  // it now departs from, and progress mirrors around that point.
+  // Inverte a direção de uma entidade no lugar, preservando a posição exata em
+  // pixels (sem "teletransporte"): o tile para onde ela ia vira o tile de onde
+  // ela parte agora, e o progresso é espelhado em torno desse ponto.
   function reverseEntityDir(e) {
     const nd = oppositeDir(e.dir);
     if (nd === STOP) return;
@@ -102,14 +102,14 @@
     pellet: "#ff5a5f",
   };
 
-  // ---------------- Canvas setup ----------------
+  // ---------------- Configuração do canvas ----------------
   const canvas = document.getElementById("game");
   const ctx = canvas.getContext("2d");
   canvas.width = COLS * TILE;
   canvas.height = ROWS * TILE;
 
-  // ---------------- Player sprite (Bob Roll walk-cycle sheet) ----------------
-  // Sheet is 8 columns x 2 rows; row 0 is the walking + mouth-chomp cycle.
+  // ---------------- Sprite do jogador (sheet de caminhada do BobRoll) ----------------
+  // O sheet tem 8 colunas x 2 linhas; a linha 0 é o ciclo de andar + mastigar.
   const BOB_SHEET_COLS = 8;
   const BOB_SHEET_ROWS = 2;
   const BOB_WALK_ROW = 0;
@@ -123,7 +123,7 @@
   };
   bobSprite.src = "bobroll-sheet.png";
 
-  // ---------------- Audio ----------------
+  // ---------------- Áudio ----------------
   let audioCtx = null;
   let muted = localStorage.getItem("hiperroll_muted") === "1";
   function getAudioCtx() {
@@ -144,7 +144,7 @@
       osc.connect(gain).connect(ac.destination);
       osc.start(t0);
       osc.stop(t0 + dur);
-    } catch (e) { /* audio unavailable */ }
+    } catch (e) { /* áudio indisponível */ }
   }
   let chompToggle = false;
   function playChomp() {
@@ -164,10 +164,10 @@
   }
   function playExtraLife() { beep(660, 0.1, "triangle", 0.15); beep(880, 0.15, "triangle", 0.15, 0.1); }
 
-  // ---------------- Background electronic music ----------------
+  // ---------------- Música eletrônica de fundo ----------------
   const BPM = 138;
-  const STEP_DUR = 60 / BPM / 4; // 16th note
-  // 16-step patterns per bar, cycling through 2 bars (32 steps) for a driving synthwave loop
+  const STEP_DUR = 60 / BPM / 4; // semicolcheia
+  // Padrões de 16 passos por compasso, alternando 2 compassos (32 passos) num loop synthwave
   const MUSIC_BASS = [
     110, 0, 110, 0, 110, 0, 146.83, 0, 98, 0, 98, 0, 130.81, 0, 123.47, 0,
     110, 0, 110, 0, 110, 0, 164.81, 0, 87.31, 0, 87.31, 0, 130.81, 0, 116.54, 0,
@@ -180,7 +180,7 @@
     1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1,
     1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1,
   ];
-  // Denser, higher-pitched "power mode" patterns while the Rolo Turbo is active.
+  // Padrões mais densos e agudos do "modo poder" enquanto o Turbo está ativo.
   const MUSIC_BASS_FRIGHT = [
     196, 196, 220, 220, 196, 196, 174.61, 174.61, 196, 196, 220, 220, 196, 196, 174.61, 174.61,
     196, 196, 220, 220, 196, 196, 174.61, 174.61, 196, 196, 220, 220, 196, 196, 174.61, 174.61,
@@ -268,7 +268,7 @@
     }
   }
 
-  // ---------------- Maze helpers ----------------
+  // ---------------- Auxiliares do labirinto ----------------
   function cellChar(col, row) {
     let r = row;
     if (isTunnelCol(col)) r = ((row % ROWS) + ROWS) % ROWS;
@@ -306,13 +306,13 @@
     return row;
   }
 
-  // ---------------- Random maze generation ----------------
-  // The banner, ghost house, tunnel and border are always the same; only
-  // the pillar layout in the open play area (above/below the house) is
-  // randomized each level. Pillars are placed in fixed, non-touching
-  // "slots" so the maze is always fully connected by construction - a
-  // flood-fill check still guards against any edge case, falling back to
-  // the static DEFAULT_MAZE if it ever fails.
+  // ---------------- Geração aleatória do labirinto ----------------
+  // O letreiro, a casa dos fantasmas, o túnel e a borda são sempre iguais; só o
+  // layout dos pilares na área aberta (acima/abaixo da casa) é sorteado a cada
+  // fase. Os pilares ficam em "slots" fixos que não se tocam, então o labirinto
+  // é sempre totalmente conectado por construção - mesmo assim, uma checagem
+  // por flood-fill protege contra qualquer caso extremo, recorrendo ao
+  // DEFAULT_MAZE estático caso ela falhe.
   const BANNER_WORD = "HIPERROLL";
   const BANNER_ROW = 2;
   const BANNER_GLYPHS = {
@@ -348,7 +348,7 @@
       for (let c = HOUSE_COL_MIN; c <= HOUSE_COL_MAX; c++) g[r][c] = " ";
     }
     for (let c = HOUSE_COL_MIN; c <= HOUSE_COL_MAX; c++) g[HOUSE_ROW_MIN - 1][c] = "#";
-    g[HOUSE_ROW_MIN - 1][HOUSE_CENTER.col] = " "; // door
+    g[HOUSE_ROW_MIN - 1][HOUSE_CENTER.col] = " "; // porta
     for (let c = HOUSE_COL_MIN; c <= HOUSE_COL_MAX; c++) g[HOUSE_ROW_MAX + 1][c] = "#";
     for (let r = HOUSE_ROW_MIN; r <= HOUSE_ROW_MAX; r++) {
       g[r][HOUSE_COL_MIN] = "#";
@@ -356,19 +356,19 @@
     }
   }
 
-  // 2-row-tall x 3-col-wide slots, left half only (mirrored for the right
-  // half), each separated from its neighbors by at least one clear column
-  // or row so a pillar can never touch another and trap an open pocket.
+  // Slots de 2 linhas de altura x 3 colunas de largura, só na metade esquerda
+  // (espelhados para a direita), cada um separado dos vizinhos por ao menos uma
+  // coluna ou linha livre, para um pilar nunca tocar outro e prender um espaço aberto.
   const PILLAR_ROW_BANDS = [[8, 9], [11, 12], [14, 15], [21, 22], [24, 25], [27, 28]];
   const PILLAR_COL_SLOTS = [[2, 4], [6, 8], [10, 12], [14, 16]];
 
   function placeRandomPillars(g) {
     for (const [r0] of PILLAR_ROW_BANDS) {
       for (const [c0, c1] of PILLAR_COL_SLOTS) {
-        if (Math.random() > 0.55) continue; // leave this slot open
-        // always fill the whole slot width - a partial-width pillar leaves
-        // a single stray dot wedged against it that's only reachable from
-        // one exact direction, which is the "hard to grab" spot players hit
+        if (Math.random() > 0.55) continue; // deixa este slot aberto
+        // sempre preenche a largura inteira do slot - um pilar de largura parcial deixa
+        // uma bolinha solta encostada nele que só é alcançável a partir de
+        // uma direção exata, que era o ponto "difícil de pegar" que os jogadores sentiam
         const h = Math.random() < 0.5 ? 1 : 2;
         for (let r = r0; r < r0 + h; r++) {
           for (let c = c0; c <= c1; c++) {
@@ -394,9 +394,9 @@
       g[ROWS - 1][tc] = " "; g[ROWS - 2][tc] = " ";
     }
     placeRandomPillars(g);
-    // power pellets: the 4 corners plus 4 more along the guaranteed-clear
-    // gap rows/columns between pillar slots, so they're always reachable
-    // no matter which random pillars got placed this level
+    // bolinhas de poder: os 4 cantos mais 4 ao longo das linhas/colunas sempre livres
+    // entre os slots de pilares, para serem sempre alcançáveis
+    // não importa quais pilares aleatórios foram colocados nesta fase
     g[1][1] = "o"; g[1][COLS - 2] = "o";
     g[ROWS - 2][1] = "o"; g[ROWS - 2][COLS - 2] = "o";
     g[10][9] = "o"; g[10][COLS - 1 - 9] = "o";
@@ -443,7 +443,7 @@
     return DEFAULT_MAZE.slice();
   }
 
-  let dotState = []; // 0 none, 1 dot, 2 pellet
+  let dotState = []; // 0 nada, 1 bolinha, 2 bolinha de poder
   let dotsRemaining = 0;
 
   function resetDots() {
@@ -463,7 +463,7 @@
     }
   }
 
-  // ---------------- Entities ----------------
+  // ---------------- Entidades ----------------
   function makeEntity(col, row) {
     return { col, row, dir: STOP, nextDir: STOP, t: 0 };
   }
@@ -471,9 +471,9 @@
   const player = Object.assign(makeEntity(PLAYER_START.col, PLAYER_START.row), {
     walkPhase: 0,
     facing: RIGHT,
-    hFace: RIGHT, // last left/right facing - the sprite is side-profile only, so
-    // up/down moves keep whichever horizontal mirror was last used
-    speed: 8.3, // tiles/sec
+    hFace: RIGHT, // último lado (esquerda/direita) - o sprite é só de perfil, então
+    // movimentos para cima/baixo mantêm o último espelhamento horizontal usado
+    speed: 8.3, // tiles/seg
   });
 
   const rivalDefs = [
@@ -500,7 +500,7 @@
   makeRivals();
   resetDots();
 
-  // ---------------- Game state ----------------
+  // ---------------- Estado do jogo ----------------
   let score = 0;
   let highscore = parseInt(localStorage.getItem("hiperroll_highscore") || "0", 10);
   let lives = 3;
@@ -517,10 +517,10 @@
   let playerName = "Jogador";
   let floatTexts = [];
 
-  let state = "menu"; // menu, ready, playing, dying, levelcomplete, paused, gameover
+  let state = "menu"; // menu, ready (preparar), playing (jogando), dying (morrendo), levelcomplete (fase concluída), paused (pausado), gameover (fim de jogo)
   let stateTimer = 0;
 
-  // ---------------- DOM ----------------
+  // ---------------- Elementos da página (DOM) ----------------
   const scoreEl = document.getElementById("score");
   const highscoreEl = document.getElementById("highscore");
   const levelEl = document.getElementById("level");
@@ -544,8 +544,8 @@
   muteBtn.textContent = muted ? "🔇" : "🔊";
   const nameErrorEl = document.getElementById("nameError");
 
-  // Event mode: only the offline .exe build answers event-mode.json (the
-  // website gets a 404), so the phone field / Excel export never show online.
+  // Modo evento: só a versão offline (.exe) responde event-mode.json (o site
+  // recebe 404), então o campo de telefone / exportação Excel nunca aparecem online.
   let eventMode = false;
   let playerPhone = "";
   const phoneWrap = document.getElementById("phoneWrap");
@@ -575,7 +575,7 @@
       eventMode = true;
       phoneWrap.classList.remove("hidden");
       newPlayerBtn.classList.remove("hidden");
-      playerNameInput.value = ""; // never prefill someone else's data at an event
+      playerNameInput.value = ""; // nunca preencher com dados de outra pessoa em um evento
     })
     .catch(() => {});
   playerNameInput.value = (localStorage.getItem("hiperroll_playername") || "").slice(0, 10);
@@ -622,7 +622,7 @@
     }
   }
 
-  // ---------------- Reset helpers ----------------
+  // ---------------- Auxiliares de reinício ----------------
   function resetPositions() {
     player.col = PLAYER_START.col;
     player.row = PLAYER_START.row;
@@ -683,12 +683,12 @@
     if (score > 0) submitScore(playerName, score);
   }
 
-  // ---------------- Leaderboard ----------------
-  // Tries the shared server-side ranking (leaderboard.php, works once this
-  // is hosted somewhere with PHP - e.g. HostGator). If that's unreachable
-  // (still testing locally, or not deployed yet) it falls back to a ranking
-  // kept in this browser's localStorage, so the feature is fully testable
-  // today and upgrades automatically once the PHP endpoint is live.
+  // ---------------- Ranking ----------------
+  // Tenta o ranking compartilhado no servidor (leaderboard.php, funciona quando o
+  // jogo está hospedado com PHP - ex: HostGator). Se não estiver acessível
+  // (testando localmente ou ainda sem publicar), usa um ranking guardado no
+  // localStorage deste navegador, então a função é totalmente testável hoje
+  // e passa a usar o servidor automaticamente assim que o PHP estiver no ar.
   const LEADERBOARD_URL = "leaderboard.php";
   const LOCAL_LEADERBOARD_KEY = "hiperroll_leaderboard_local";
 
@@ -782,32 +782,32 @@
 
 
 
-  // ---------------- Input ----------------
+  // ---------------- Entrada (teclado/toque) ----------------
   function setDir(d) {
     player.nextDir = d;
     if (state !== "playing") return;
     if (player.dir === STOP) {
-      // try to move immediately if possible
+      // tenta se mover imediatamente, se possível
       if (isWalkable(player.col + d.dx, player.row + d.dy, false)) {
         player.dir = d;
         player.facing = d;
       }
     } else if (d === oppositeDir(player.dir)) {
-      // reversing never needs to wait for an intersection - do it instantly
+      // inverter nunca precisa esperar um cruzamento - faz na hora
       reverseEntityDir(player);
       player.facing = player.dir;
     }
   }
 
   window.addEventListener("keydown", (e) => {
-    // hidden shortcut for the event staff: download the participants sheet
+    // atalho escondido para a equipe do evento: baixar a planilha de participantes
     if (eventMode && e.ctrlKey && e.shiftKey && e.code === "KeyE") {
       e.preventDefault();
       window.location.href = "export.xlsx";
       return;
     }
     if (e.target === playerNameInput || e.target === playerPhoneInput) {
-      // let the player type their name normally, but Enter still starts the game
+      // deixa o jogador digitar o nome normalmente, mas o Enter ainda inicia o jogo
       if (e.code === "Enter" && state === "menu") beginGame();
       return;
     }
@@ -920,7 +920,7 @@
     playerNameInput.focus();
   });
 
-  // ---------------- AI targeting ----------------
+  // ---------------- Alvo da IA ----------------
   function computeChaseTarget(r) {
     switch (r.personality) {
       case "chase":
@@ -942,11 +942,11 @@
     }
   }
 
-  // Exact shortest path (BFS, wrap-aware) between two tiles. Used to send
-  // eaten/leaving ghosts back to the house: the regular greedy "step toward
-  // whichever neighbor reduces distance" AI that chases/scatters with can
-  // get stuck looping around pillars forever in some maze layouts, since it
-  // never revisits a decision - a real path guarantees they always arrive.
+  // Menor caminho exato (BFS, considerando os túneis) entre dois tiles. Usado para
+  // mandar de volta à casa os fantasmas comidos/saindo: a IA gulosa comum ("dá o
+  // passo para o vizinho que reduz a distância") usada para perseguir/dispersar pode
+  // ficar presa girando em volta de pilares para sempre em alguns labirintos, pois
+  // nunca revê uma decisão - um caminho de verdade garante que sempre cheguem.
   function findPathBFS(fromCol, fromRow, toCol, toRow) {
     const startKey = fromRow * COLS + fromCol;
     const goalKey = toRow * COLS + toCol;
@@ -991,10 +991,10 @@
   }
 
   function decideGhostDir(r) {
-    // Self-healing: arriving at the target flips status here (not only in
-    // stepRival's tile-arrival block) so a ghost can never get stranded
-    // "at" its destination with status still eaten/leaving and nothing left
-    // to path toward.
+    // Autocorreção: ao chegar no destino o status muda aqui (e não só no bloco de
+    // chegada de tile do stepRival), assim um fantasma nunca fica preso
+    // no destino com status ainda eaten/leaving e sem nada restante
+    // para percorrer.
     if (r.status === "eaten" && r.col === HOUSE_CENTER.col && r.row === HOUSE_CENTER.row) {
       r.status = "leaving";
       r.path = null;
@@ -1061,7 +1061,7 @@
     });
   }
 
-  // ---------------- Movement stepping ----------------
+  // ---------------- Passos de movimento ----------------
   function stepPlayer(dt) {
     if (player.dir === STOP) {
       if (player.nextDir !== STOP && isWalkable(player.col + player.nextDir.dx, player.row + player.nextDir.dy, false)) {
@@ -1149,9 +1149,9 @@
   function checkCollisions() {
     const p = entityPixel(player);
     for (const r of rivals) {
-      // "leaving" ghosts are still dangerous - only fully idle (still inside
-      // the house, unreachable by the player anyway) or already-eaten ghosts
-      // are safe to touch
+      // fantasmas "leaving" (saindo) ainda são perigosos - só os totalmente parados (ainda dentro
+      // da casa, inalcançáveis pelo jogador de qualquer forma) ou os já comidos
+      // são seguros de encostar
       if (r.status !== "normal" && r.status !== "frightened" && r.status !== "leaving") continue;
       const gp = entityPixel(r);
       const dist = Math.hypot(p.x - gp.x, p.y - gp.y);
@@ -1162,7 +1162,7 @@
     }
   }
 
-  // ---------------- Update ----------------
+  // ---------------- Atualização ----------------
   function update(dt) {
     if (state === "ready") {
       stateTimer -= dt;
@@ -1224,14 +1224,14 @@
       showToast("Fase concluída!", 1500);
     }
 
-    // walk-cycle animation - advances with distance traveled so legs/mouth
-    // step in sync with movement speed, freezes when stopped
+    // animação de caminhada - avança conforme a distância percorrida, então pernas/boca
+    // acompanham a velocidade do movimento e congelam quando parado
     if (player.dir !== STOP) {
       player.walkPhase += player.speed * dt;
     }
   }
 
-  // ---------------- Rendering ----------------
+  // ---------------- Desenho na tela ----------------
   function drawMaze(time) {
     ctx.fillStyle = COLORS.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1284,10 +1284,10 @@
     }
   }
 
-  const BOB_CYCLES_PER_TILE = 1.15; // how many full 8-frame walk cycles play per tile crossed
+  const BOB_CYCLES_PER_TILE = 1.15; // quantos ciclos completos de 8 quadros tocam por tile percorrido
   const BOB_DRAW_HEIGHT = TILE * 2.05;
-  const BOB_VERTICAL_TILT = 0.26; // radians - the art is side-profile only, so
-  // up/down movement is hinted at by leaning the sprite instead of a real turn
+  const BOB_VERTICAL_TILT = 0.26; // radianos - a arte é só de perfil, então
+  // o movimento para cima/baixo é sugerido inclinando o sprite, em vez de uma virada de verdade
 
   function drawPlayer(time) {
     const p = entityPixel(player);
@@ -1297,7 +1297,7 @@
     const shrink = state === "dying" ? Math.max(0, stateTimer / 1.1) : 1;
 
     if (!bobSpriteReady) {
-      // sprite still loading - draw a simple placeholder so the player is never invisible
+      // sprite ainda carregando - desenha um marcador simples para o jogador nunca ficar invisível
       ctx.fillStyle = "#e31e24";
       ctx.beginPath();
       ctx.arc(p.x, p.y, TILE * 0.42 * shrink, 0, Math.PI * 2);
@@ -1318,18 +1318,18 @@
       if (player.dir === UP) tilt = -BOB_VERTICAL_TILT;
       else if (player.dir === DOWN) tilt = BOB_VERTICAL_TILT;
     }
-    // mirroring (scale -1,1) flips the apparent direction of a rotation, so
-    // the tilt sign must be flipped too, and the mirror must be applied
-    // BEFORE the rotation (closer to translate) - otherwise the lean reads
-    // backwards whenever the character is facing left instead of right
+    // o espelhamento (scale -1,1) inverte a direção aparente de uma rotação, então
+    // o sinal da inclinação também precisa ser invertido, e o espelho deve ser aplicado
+    // ANTES da rotação (mais perto do translate) - senão a inclinação parece
+    // ao contrário sempre que o personagem olha para a esquerda em vez da direita
     const effectiveTilt = faceLeft ? -tilt : tilt;
 
     ctx.save();
     ctx.translate(p.x, p.y);
     if (faceLeft) ctx.scale(-1, 1);
     ctx.rotate(state === "dying" ? (1 - shrink) * Math.PI * 2 : effectiveTilt);
-    // the art's feet sit near the bottom of the frame - anchor it a little
-    // above the tile center so the character reads as standing on the path
+    // os pés da arte ficam perto da base do quadro - ancora um pouco
+    // acima do centro do tile para o personagem parecer pisando no caminho
     ctx.drawImage(bobSprite, sx, sy, bobFrameW, bobFrameH, -drawW / 2, -drawH * 0.6, drawW, drawH);
     ctx.restore();
   }
@@ -1367,7 +1367,7 @@
     }
     drawGhostBody(p.x, p.y, color);
     if (r.status === "frightened") {
-      // scared face
+      // rosto assustado
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 1.6;
       ctx.beginPath();
@@ -1418,7 +1418,7 @@
     }
   }
 
-  // ---------------- Main loop ----------------
+  // ---------------- Loop principal ----------------
   let lastTime = 0;
   function loop(ts) {
     const dt = Math.min((ts - lastTime) / 1000, 0.05) || 0;

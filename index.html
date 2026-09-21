@@ -40,8 +40,9 @@
           <p>Colete todos os pontos evitando o <b>Nó</b>, o <b>Emperro</b>, a <b>Poeira</b> e o <b>Atraso</b>.</p>
           <p>Pegue o <b>Turbo</b> (polietileno grande) para virar o jogo e derrotar os rivais!</p>
         </div>
-        <label class="name-field" for="playerName">Seu nome no ranking</label>
-        <input id="playerName" class="name-input" type="text" maxlength="18" placeholder="Digite seu nome" autocomplete="off">
+        <label class="name-field" for="playerName">Seu nome no ranking (obrigatório, até 10 letras)</label>
+        <input id="playerName" class="name-input" type="text" maxlength="10" placeholder="Digite seu nome" autocomplete="off" required>
+        <p id="nameError" class="name-error hidden">Digite seu nome para começar!</p>
         <button id="startBtn" class="primary-btn">Começar a jogar</button>
         <button id="rankingBtn" class="secondary-btn">Ver ranking</button>
       </div>

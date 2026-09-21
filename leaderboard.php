@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name = isset($body['name']) ? trim(strip_tags((string) $body['name'])) : '';
     if ($name === '') $name = 'Jogador';
-    $name = mb_substr($name, 0, 18);
+    $name = mb_substr($name, 0, 10);
 
     $score = isset($body['score']) ? (int) $body['score'] : -1;
     if ($score < 0 || $score > 5000000) {

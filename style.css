@@ -241,6 +241,17 @@ canvas#game {
   outline: none;
   border-color: var(--hr-gold);
 }
+.name-input.invalid {
+  border-color: var(--hr-red);
+  box-shadow: 0 0 8px rgba(227, 30, 36, 0.6);
+}
+.name-error {
+  color: #ff6b6f;
+  font-size: 12px;
+  margin: -8px 0 12px;
+  text-align: left;
+}
+.name-error.hidden { display: none; }
 
 .ranking-list {
   list-style: none;

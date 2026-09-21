@@ -542,7 +542,14 @@
   document.getElementById("year").textContent = new Date().getFullYear();
   highscoreEl.textContent = highscore;
   muteBtn.textContent = muted ? "🔇" : "🔊";
-  playerNameInput.value = localStorage.getItem("hiperroll_playername") || "";
+  const nameErrorEl = document.getElementById("nameError");
+  playerNameInput.value = (localStorage.getItem("hiperroll_playername") || "").slice(0, 10);
+  playerNameInput.addEventListener("input", () => {
+    if (playerNameInput.value.trim()) {
+      playerNameInput.classList.remove("invalid");
+      nameErrorEl.classList.add("hidden");
+    }
+  });
 
   function showToast(msg, ms) {
     toastEl.textContent = msg;
@@ -824,7 +831,16 @@
   });
 
   function beginGame() {
-    playerName = playerNameInput.value.trim().slice(0, 18) || "Jogador";
+    const typed = playerNameInput.value.trim().slice(0, 10);
+    if (!typed) {
+      playerNameInput.classList.add("invalid");
+      nameErrorEl.classList.remove("hidden");
+      playerNameInput.focus();
+      return;
+    }
+    playerNameInput.classList.remove("invalid");
+    nameErrorEl.classList.add("hidden");
+    playerName = typed;
     localStorage.setItem("hiperroll_playername", playerName);
     menuOverlay.classList.add("hidden");
     score = 0;
